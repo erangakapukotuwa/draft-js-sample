@@ -62,7 +62,7 @@ export default class DayView extends Component {
         }).done(function (data, text) {
         
             if(data.status.code == 200){
-                this.refs.SharedUserField.setState({editorState : EditorState.createEmpty()});
+                
             }
         }.bind(this));
     }
