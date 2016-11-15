@@ -30,10 +30,6 @@ export default class DayView extends Component {
         this.setState({showTimePanel : (showTimePanel == 'active' ? '' : 'active') });
     }
 
-    componentDidMount() {
-        this.loadEvents();
-    }
-
     addEvent(event) {
 
         const Editor = this.refs.EditorFieldValues.state.editorState;
@@ -67,7 +63,6 @@ export default class DayView extends Component {
         
             if(data.status.code == 200){
                 this.refs.SharedUserField.setState({editorState : EditorState.createEmpty()});
-                this.loadEvents();
             }
         }.bind(this));
     }
