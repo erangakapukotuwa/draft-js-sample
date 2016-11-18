@@ -98,10 +98,6 @@ export default class EditorField extends Component {
                     plugins={plugins}
                     ref={(element) => { this.editor = element; }}
                     placeholder="Type in an Event or a To-do here use # to tag people, @ to set time of the event"
-                    decorators={[{
-                        strategy: timeStrategy,
-                        component: HandleSpan,
-                    },]}
                   />
                 <EmojiSuggestions />
                 <MentionSuggestions
@@ -113,60 +109,3 @@ export default class EditorField extends Component {
         );
     }
 }
-                                
-const HANDLE_REGEX = /\$[\w]+/g;
-
-function timeStrategy(contentState, contentBlock, callback) {
-  findWithRegex(HANDLE_REGEX, contentBlock, callback);
-}
-
-function findWithRegex(regex, contentBlock, callback) {
-  console.log(contentBlock);
-  const text = contentBlock.getText();
-  let matchArr, start;
-  while ((matchArr = regex.exec(text)) !== null) {
-    start = matchArr.index;
-    callback(start, start + matchArr[0].length);
-  }
-}
-
-const HandleSpan = (props) => {
-  return (
-    <span
-      style={styles.handle}
-      data-offset-key={props.offsetKey}
-    >
-      {props.children}
-    </span>
-  );
-};
-
-const styles = {
-  root: {
-    fontFamily: '\'Helvetica\', sans-serif',
-    padding: 20,
-    width: 600,
-  },
-  editor: {
-    border: '1px solid #ddd',
-    cursor: 'text',
-    fontSize: 16,
-    minHeight: 40,
-    padding: 10,
-  },
-  button: {
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  handle: {
-    color: 'rgba(98, 177, 254, 1.0)',
-    direction: 'ltr',
-    unicodeBidi: 'bidi-override',
-  },
-  hashtag: {
-    color: 'rgba(95, 184, 138, 1.0)',
-  },
-};                               
-                                
-                                
-                                
