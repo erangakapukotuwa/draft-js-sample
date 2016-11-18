@@ -16,18 +16,7 @@ export default class DayView extends Component {
         super(props);
         this.state = {
             events : [],
-            defaultType : 'EVENT',
         };
-    }
-    
-    _onHashClick() {
-        let showUserPanel = this.state.showUserPanel;
-        this.setState({showUserPanel : (showUserPanel == 'active' ? '' : 'active') });
-    }
-
-    _onAtClick() {
-        let showTimePanel = this.state.showTimePanel;
-        this.setState({showTimePanel : (showTimePanel == 'active' ? '' : 'active') });
     }
 
     addEvent(event) {
@@ -36,13 +25,6 @@ export default class DayView extends Component {
         const contentState = this.refs.EditorFieldValues.state.editorState.getCurrentContent();
         const editorContentRaw = convertToRaw(contentState);
         
-        //  TRIED THIS ONE TOO. dID NOT WORKED
-        // forEach(editorContentRaw.entityMap, function(value, key) {
-        //    if(value.type == '#mention') {
-        //        value.data.mention = fromJS(value.data.mention);
-        //    }
-        //});
-
         // get shared users from SharedUsers field
         const sharedUsers = [];
         const postData = {
@@ -66,50 +48,41 @@ export default class DayView extends Component {
             }
         }.bind(this));
     }
+    
+    clickEdit(eventId) {
+        $.ajax({
+            url : '/calendar/event/get',
+            method : "POST",
+            data : { eventId : eventId },
+            dataType : "JSON",
+            headers : { "prg-auth-header" : this.state.user.token },
+            success : function (data, text) {
+                if (data.status.code == 200) {
+                    var rawContent = data.event.description;
+                    forEach(rawContent.entityMap, function(value, key) {
+                        value.data.mention = fromJS(value.data.mention)
+                    });
 
-    _onBoldClick() {
-        this.refs.EditorFieldValues.onChange(RichUtils.toggleInlineStyle(this.refs.EditorFieldValues.state.editorState, 'BOLD'));
-    }
-
-    _onItalicClick() {
-        this.refs.EditorFieldValues.onChange(RichUtils.toggleInlineStyle(this.refs.EditorFieldValues.state.editorState, 'ITALIC'));
-    }
-
-    _onUnderLineClick() {
-        this.refs.EditorFieldValues.onChange(RichUtils.toggleInlineStyle(this.refs.EditorFieldValues.state.editorState, 'UNDERLINE'));
+                    const contentState = convertFromRaw(rawContent);
+                    const editorState = EditorState.createWithContent(contentState);
+                    this.refs.EditorFieldValues.setState({editorState : editorState});
+                }
+            }.bind(this),
+            error: function (request, status, error) {
+                console.log(error);
+            }
+        });
     }
 
     render() {
+        var eventId = "12345676";
         return (              
             <div className="col-sm-12">
                 <div className="input" id="editor-holder" >
                     <EditorField ref="EditorFieldValues" />
                 </div>
-                <div className="items-wrapper">
-                    <div className="menu-ico">
-                        <p><i className="fa fa-smile-o" aria-hidden="true"></i></p>
-                    </div>
-                    <div className="menu-ico">
-                        <div className="menu-ico">
-                            <p>
-                                <span className="bold" onClick={this._onBoldClick.bind(this)}>B</span>
-                            </p>
-                        </div>
-                        <div className="menu-ico">
-                            <p>
-                                <span className="italic" onClick={this._onItalicClick.bind(this)}>I</span>
-                            </p>
-                        </div>
-                        <div className="menu-ico">
-                            <p>
-                                <span className="underline" onClick={this._onUnderLineClick.bind(this)}>U</span>
-                            </p>
-                        </div>
-                    </div>
-                    <div className="btn-enter" onClick={this.addEvent}>
-                        <i className="fa fa-paper-plane" aria-hidden="true"></i> Enter
-                    </div>
-                </div>
+                <div clickEdit={this.clickEdit.bind(this, eventId)}>Edit</div>
+                />
             </div>                                     
         );
     }
